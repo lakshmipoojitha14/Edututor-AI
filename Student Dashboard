@@ -1,0 +1,204 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { 
+  User, 
+  BookOpen, 
+  TrendingUp, 
+  Clock, 
+  Trophy, 
+  Target,
+  Plus,
+  History
+} from "lucide-react";
+
+interface StudentDashboardProps {
+  onStartQuiz: () => void;
+  onStartAIQuiz: () => void;
+  onViewHistory: () => void;
+}
+
+const StudentDashboard = ({ onStartQuiz, onStartAIQuiz, onViewHistory }: StudentDashboardProps) => {
+  const [studentData] = useState({
+    name: "Alex Johnson",
+    totalQuizzes: 24,
+    averageScore: 87,
+    streak: 5,
+    recentActivity: [
+      { subject: "Mathematics", score: 95, date: "2 hours ago" },
+      { subject: "Science", score: 82, date: "1 day ago" },
+      { subject: "History", score: 90, date: "2 days ago" }
+    ],
+    progress: {
+      mathematics: 85,
+      science: 78,
+      history: 92,
+      literature: 76
+    }
+  });
+
+  return (
+    <div className="min-h-screen p-4 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-800">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <Card className="bg-white/95 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">Welcome back, {studentData.name}!</CardTitle>
+                  <p className="text-gray-600">Ready to continue learning?</p>
+                </div>
+              </div>
+              <Badge className="bg-green-100 text-green-800">
+                <Trophy className="w-4 h-4 mr-1" />
+                {studentData.streak} day streak
+              </Badge>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <BookOpen className="w-8 h-8 text-blue-600" />
+                <div>
+                  <p className="text-2xl font-bold">{studentData.totalQuizzes}</p>
+                  <p className="text-sm text-gray-600">Quizzes Taken</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <Target className="w-8 h-8 text-green-600" />
+                <div>
+                  <p className="text-2xl font-bold">{studentData.averageScore}%</p>
+                  <p className="text-sm text-gray-600">Average Score</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <TrendingUp className="w-8 h-8 text-purple-600" />
+                <div>
+                  <p className="text-2xl font-bold">+12%</p>
+                  <p className="text-sm text-gray-600">This Week</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <Clock className="w-8 h-8 text-orange-600" />
+                <div>
+                  <p className="text-2xl font-bold">2.5h</p>
+                  <p className="text-sm text-gray-600">Study Time</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Quick Actions */}
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button 
+                onClick={onStartAIQuiz}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                size="lg"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Generate AI Quiz
+              </Button>
+              
+              <Button 
+                onClick={onStartQuiz}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                Take Sample Quiz
+              </Button>
+              
+              <Button 
+                onClick={onViewHistory}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                <History className="w-5 h-5 mr-2" />
+                View Quiz History
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Subject Progress */}
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Subject Progress</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Object.entries(studentData.progress).map(([subject, progress]) => (
+                <div key={subject} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="capitalize text-sm font-medium">{subject}</span>
+                    <span className="text-sm text-gray-600">{progress}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        <Card className="bg-white/95 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {studentData.recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">{activity.subject}</p>
+                    <p className="text-sm text-gray-600">{activity.date}</p>
+                  </div>
+                  <Badge 
+                    className={`${
+                      activity.score >= 90 ? 'bg-green-100 text-green-800' :
+                      activity.score >= 80 ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {activity.score}%
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
