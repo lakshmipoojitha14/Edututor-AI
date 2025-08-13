@@ -1,0 +1,260 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import QuestionCard from "./QuestionCard";
+import ScoreBoard from "./ScoreBoard";
+import AIQuizGenerator from "./AIQuizGenerator";
+import StudentDashboard from "./StudentDashboard";
+import EducatorDashboard from "./EducatorDashboard";
+import QuizHistory from "./QuizHistory";
+import { Brain, Play, Users, GraduationCap } from "lucide-react";
+
+interface Question {
+  id: number;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  category: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  aiGenerated?: boolean;
+}
+
+const sampleQuestions: Question[] = [
+  {
+    id: 1,
+    question: "Which planet is known as the Red Planet?",
+    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+    correctAnswer: 1,
+    category: "Science",
+    difficulty: "easy"
+  },
+  {
+    id: 2,
+    question: "What is the capital of Japan?",
+    options: ["Seoul", "Beijing", "Tokyo", "Bangkok"],
+    correctAnswer: 2,
+    category: "Geography",
+    difficulty: "easy"
+  },
+  {
+    id: 3,
+    question: "Who painted the Mona Lisa?",
+    options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+    correctAnswer: 2,
+    category: "Art",
+    difficulty: "medium"
+  },
+  {
+    id: 4,
+    question: "What is the largest mammal in the world?",
+    options: ["African Elephant", "Blue Whale", "Giraffe", "Polar Bear"],
+    correctAnswer: 1,
+    category: "Biology",
+    difficulty: "easy"
+  },
+  {
+    id: 5,
+    question: "Which programming language was created by Guido van Rossum?",
+    options: ["Java", "JavaScript", "Python", "C++"],
+    correctAnswer: 2,
+    category: "Technology",
+    difficulty: "medium"
+  }
+];
+
+const QuizApp = () => {
+  const [gameState, setGameState] = useState<'main' | 'student-dashboard' | 'educator-dashboard' | 'ai-generator' | 'playing' | 'finished' | 'history'>('main');
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [showResult, setShowResult] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  const startQuiz = (quizQuestions: Question[] = sampleQuestions) => {
+    setQuestions(quizQuestions);
+    setGameState('playing');
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+  };
+
+  const handleAnswerSelect = (answerIndex: number) => {
+    if (selectedAnswer !== null) return;
+    
+    setSelectedAnswer(answerIndex);
+    setShowResult(true);
+    
+    if (answerIndex === questions[currentQuestionIndex].correctAnswer) {
+      setScore(score + 1);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(null);
+      setShowResult(false);
+    } else {
+      setGameState('finished');
+    }
+  };
+
+  const resetQuiz = () => {
+    setGameState('main');
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+  };
+
+  const handleAIQuizGenerated = (aiQuestions: Question[]) => {
+    startQuiz(aiQuestions);
+  };
+
+  const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+
+  // Main Menu
+  if (gameState === 'main') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Brain className="w-20 h-20 text-purple-600" />
+            </div>
+            <CardTitle className="text-4xl bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+              EduTutor AI
+            </CardTitle>
+            <p className="text-gray-600 text-lg">
+              Personalized Learning with Generative AI
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Dynamic quiz generation • Student evaluation • Real-time feedback
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button 
+                onClick={() => setGameState('student-dashboard')}
+                size="lg"
+                className="h-20 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
+              >
+                <div className="flex flex-col items-center">
+                  <GraduationCap className="w-8 h-8 mb-2" />
+                  <span className="text-lg">Student Portal</span>
+                </div>
+              </Button>
+              
+              <Button 
+                onClick={() => setGameState('educator-dashboard')}
+                size="lg"
+                variant="outline"
+                className="h-20 border-2 hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+              >
+                <div className="flex flex-col items-center">
+                  <Users className="w-8 h-8 mb-2" />
+                  <span className="text-lg">Educator Portal</span>
+                </div>
+              </Button>
+            </div>
+            
+            <div className="pt-4 border-t">
+              <Button 
+                onClick={() => startQuiz()}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                <Play className="w-5 h-5 mr-2" />
+                Quick Demo Quiz
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Student Dashboard
+  if (gameState === 'student-dashboard') {
+    return (
+      <StudentDashboard
+        onStartQuiz={() => startQuiz()}
+        onStartAIQuiz={() => setGameState('ai-generator')}
+        onViewHistory={() => setGameState('history')}
+      />
+    );
+  }
+
+  // Educator Dashboard
+  if (gameState === 'educator-dashboard') {
+    return (
+      <EducatorDashboard
+        onBack={() => setGameState('main')}
+      />
+    );
+  }
+
+  // AI Quiz Generator
+  if (gameState === 'ai-generator') {
+    return (
+      <AIQuizGenerator
+        onQuizGenerated={handleAIQuizGenerated}
+        onBack={() => setGameState('student-dashboard')}
+      />
+    );
+  }
+
+  // Quiz History
+  if (gameState === 'history') {
+    return (
+      <QuizHistory
+        onBack={() => setGameState('student-dashboard')}
+      />
+    );
+  }
+
+  // Quiz Finished
+  if (gameState === 'finished') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <ScoreBoard 
+          score={score}
+          totalQuestions={questions.length}
+          onRestart={resetQuiz}
+        />
+      </div>
+    );
+  }
+
+  // Playing Quiz
+  return (
+    <div className="min-h-screen p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-600">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </span>
+              <span className="text-sm font-medium text-gray-600">
+                Score: {score}/{questions.length}
+              </span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        </div>
+
+        <QuestionCard
+          question={questions[currentQuestionIndex]}
+          selectedAnswer={selectedAnswer}
+          showResult={showResult}
+          onAnswerSelect={handleAnswerSelect}
+          onNext={nextQuestion}
+        />
+      </div>
+    </div>
+  );
+};
