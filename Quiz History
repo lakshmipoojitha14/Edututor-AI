@@ -1,0 +1,265 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { 
+  Calendar, 
+  Clock, 
+  Trophy, 
+  TrendingUp,
+  ArrowLeft,
+  Filter,
+  Search
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+
+interface QuizHistoryProps {
+  onBack: () => void;
+}
+
+const QuizHistory = ({ onBack }: QuizHistoryProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const [quizHistory] = useState([
+    {
+      id: 1,
+      topic: "Mathematics - Algebra",
+      date: "2024-01-15",
+      time: "14:30",
+      score: 18,
+      totalQuestions: 20,
+      percentage: 90,
+      difficulty: "medium",
+      duration: "15 minutes",
+      category: "Mathematics"
+    },
+    {
+      id: 2,
+      topic: "Science - Physics",
+      date: "2024-01-14",
+      time: "10:15",
+      score: 16,
+      totalQuestions: 20,
+      percentage: 80,
+      difficulty: "hard",
+      duration: "22 minutes",
+      category: "Science"
+    },
+    {
+      id: 3,
+      topic: "History - World War II",
+      date: "2024-01-13",
+      time: "16:45",
+      score: 19,
+      totalQuestions: 20,
+      percentage: 95,
+      difficulty: "medium",
+      duration: "18 minutes",
+      category: "History"
+    },
+    {
+      id: 4,
+      topic: "Literature - Shakespeare",
+      date: "2024-01-12",
+      time: "09:30",
+      score: 14,
+      totalQuestions: 20,
+      percentage: 70,
+      difficulty: "hard",
+      duration: "25 minutes",
+      category: "Literature"
+    },
+    {
+      id: 5,
+      topic: "AI Generated - Machine Learning",
+      date: "2024-01-11",
+      time: "13:20",
+      score: 17,
+      totalQuestions: 20,
+      percentage: 85,
+      difficulty: "hard",
+      duration: "20 minutes",
+      category: "Technology",
+      aiGenerated: true
+    }
+  ]);
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'hard': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getScoreColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-green-600';
+    if (percentage >= 80) return 'text-blue-600';
+    if (percentage >= 70) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const filteredHistory = quizHistory.filter(quiz =>
+    quiz.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quiz.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalQuizzes = quizHistory.length;
+  const averageScore = Math.round(
+    quizHistory.reduce((sum, quiz) => sum + quiz.percentage, 0) / totalQuizzes
+  );
+  const highestScore = Math.max(...quizHistory.map(quiz => quiz.percentage));
+  const aiGeneratedCount = quizHistory.filter(quiz => quiz.aiGenerated).length;
+
+  return (
+    <div className="min-h-screen p-4 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-800">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <Card className="bg-white/95 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button onClick={onBack} variant="outline" size="sm">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <div>
+                  <CardTitle className="text-3xl bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    Quiz History
+                  </CardTitle>
+                  <p className="text-gray-600 mt-1">Track your learning progress over time</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Input
+                    placeholder="Search quizzes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+                <Button variant="outline" size="sm">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filter
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <Trophy className="w-8 h-8 text-yellow-600" />
+                <div>
+                  <p className="text-2xl font-bold">{totalQuizzes}</p>
+                  <p className="text-sm text-gray-600">Total Quizzes</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <TrendingUp className="w-8 h-8 text-green-600" />
+                <div>
+                  <p className="text-2xl font-bold">{averageScore}%</p>
+                  <p className="text-sm text-gray-600">Average Score</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <Trophy className="w-8 h-8 text-purple-600" />
+                <div>
+                  <p className="text-2xl font-bold">{highestScore}%</p>
+                  <p className="text-sm text-gray-600">Best Score</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">AI</span>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{aiGeneratedCount}</p>
+                  <p className="text-sm text-gray-600">AI Generated</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quiz History List */}
+        <Card className="bg-white/95 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>Recent Quizzes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {filteredHistory.map((quiz) => (
+                <div key={quiz.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="text-lg font-semibold">{quiz.topic}</h3>
+                        {quiz.aiGenerated && (
+                          <Badge className="bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800">
+                            AI Generated
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{quiz.date}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{quiz.duration}</span>
+                        </div>
+                        <Badge className={getDifficultyColor(quiz.difficulty)}>
+                          {quiz.difficulty}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-3xl font-bold ${getScoreColor(quiz.percentage)}`}>
+                        {quiz.percentage}%
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {quiz.score}/{quiz.totalQuestions}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Progress</span>
+                      <span>{quiz.score} out of {quiz.totalQuestions} correct</span>
+                    </div>
+                    <Progress value={quiz.percentage} className="h-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
