@@ -1,0 +1,171 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Brain, Loader2, Sparkles } from "lucide-react";
+
+interface AIQuizGeneratorProps {
+  onQuizGenerated: (questions: any[]) => void;
+  onBack: () => void;
+}
+
+const AIQuizGenerator = ({ onQuizGenerated, onBack }: AIQuizGeneratorProps) => {
+  const [topic, setTopic] = useState("");
+  const [difficulty, setDifficulty] = useState("medium");
+  const [questionCount, setQuestionCount] = useState("5");
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateAIQuiz = async () => {
+    setIsGenerating(true);
+    
+    // Simulate AI quiz generation
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const generatedQuestions = [
+      {
+        id: 1,
+        question: `What is the fundamental concept of ${topic}?`,
+        options: [
+          "Option A - Basic definition",
+          "Option B - Advanced theory",
+          "Option C - Practical application",
+          "Option D - Historical context"
+        ],
+        correctAnswer: 0,
+        category: topic,
+        difficulty: difficulty as 'easy' | 'medium' | 'hard',
+        aiGenerated: true
+      },
+      {
+        id: 2,
+        question: `Which principle is most important in ${topic}?`,
+        options: [
+          "Consistency and reliability",
+          "Innovation and creativity",
+          "Efficiency and optimization",
+          "Collaboration and teamwork"
+        ],
+        correctAnswer: 2,
+        category: topic,
+        difficulty: difficulty as 'easy' | 'medium' | 'hard',
+        aiGenerated: true
+      }
+    ];
+
+    // Generate more questions based on count
+    const totalQuestions = parseInt(questionCount);
+    const questions = [];
+    for (let i = 0; i < totalQuestions; i++) {
+      questions.push({
+        ...generatedQuestions[i % 2],
+        id: i + 1,
+        question: `${generatedQuestions[i % 2].question} (Question ${i + 1})`
+      });
+    }
+
+    setIsGenerating(false);
+    onQuizGenerated(questions);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-2xl">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <Brain className="w-16 h-16 text-purple-600" />
+          </div>
+          <CardTitle className="text-3xl bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            AI Quiz Generator
+          </CardTitle>
+          <p className="text-gray-600 mt-2">
+            Create personalized quizzes powered by AI
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="topic">Topic/Subject</Label>
+              <Input
+                id="topic"
+                placeholder="e.g., Mathematics, Science, History"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="difficulty">Difficulty Level</Label>
+              <Select value={difficulty} onValueChange={setDifficulty}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="questionCount">Number of Questions</Label>
+            <Select value={questionCount} onValueChange={setQuestionCount}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">3 Questions</SelectItem>
+                <SelectItem value="5">5 Questions</SelectItem>
+                <SelectItem value="10">10 Questions</SelectItem>
+                <SelectItem value="15">15 Questions</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="customPrompt">Custom Instructions (Optional)</Label>
+            <Textarea
+              id="customPrompt"
+              placeholder="Add specific requirements or focus areas for your quiz..."
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              rows={3}
+            />
+          </div>
+
+          <div className="flex gap-4">
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="flex-1"
+            >
+              Back
+            </Button>
+            <Button
+              onClick={generateAIQuiz}
+              disabled={!topic || isGenerating}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Generate AI Quiz
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
